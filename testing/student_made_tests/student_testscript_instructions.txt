@@ -1,0 +1,8 @@
+The only prerequisite is to have ruby installed
+
+To create n nodes with k replicas per clusters run the following command: ruby student_testscript.rb <n> <k>
+
+To delete n nodes run the command: ruby remove.rb <n>
+
+* script made by 'Maximillian Von Brain' in UCSC Fall 2017 CMPS 128 Piazza course discussion site, 
+	small edit by Christopher Hsiao described with comments in script file
