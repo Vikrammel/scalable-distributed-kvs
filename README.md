@@ -18,7 +18,7 @@
 	or
 	curl http://10.0.0.21:8080/kv-store/update_view?type=add -d "ip_port=10.0.0.22:8080" -X PUT
 
-**TO-DO:**
+**TO-DO (differently than old flask build):**
 
 * Abstract helper functions into separate files for readability
 
