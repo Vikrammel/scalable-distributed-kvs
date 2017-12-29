@@ -1,6 +1,5 @@
 # Use an official Go runtime as a parent image
-FROM golang
-#FROM golang:alpine #(lighter image)
+FROM golang:alpine
 
 # Make port 80 available to the world outside this container
 EXPOSE 8080
