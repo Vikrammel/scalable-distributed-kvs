@@ -116,7 +116,5 @@ Golang + vscode
 
 [godoc command is not available fix](https://github.com/Microsoft/vscode-go/issues/446)
 
-* note: beware of nothing things down in your code, vscode marks extraneous code as wrong or even 
-
-	removes it entirely upon save
+* note: beware of noting things down in your code, vscode marks extraneous code as wrong or even removes it entirely upon save
 
