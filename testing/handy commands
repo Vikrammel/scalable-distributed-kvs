@@ -6,16 +6,32 @@ sudo docker run -p 8084:8080 --ip=10.0.0.24 --net=mynet -e K=3 -e VIEW="10.0.0.2
 
 sudo docker run -p 8084:8080 --ip=10.0.0.24 --net=mynet -e IPPORT="10.0.0.24:8080" mycontainer
 
-curl http://10.0.0.21:8080/kv-store/update_view?type=remove -d "ip_port=10.0.0.22:8080" -X PUT
 
-curl http://10.0.0.21:8080/kv-store/update_view?type=add -d "ip_port=10.0.0.22:8080" -X PUT
+#GET
 
-curl http://10.0.0.22:8080/kv-store/get_node_details -X GET
 
-curl http://10.0.0.22:8080/kv-store/get_all_replicas -X GET
+curl -i http://10.0.0.22:8080/kv-store/get_node_details -X GET
 
-curl http://10.0.0.22:8080/kv-store/_showView! -X GET
+curl -i http://10.0.0.22:8080/kv-store/get_all_replicas -X GET
 
-curl http://10.0.0.22:8080/kv-store/_showNotInView! -X GET
+curl -i http://10.0.0.22:8080/kv-store -X GET
 
-curl http://10.0.0.22:8080/kv-store/_showProxies! -X GET
+curl -i http://10.0.0.22:8080/kv-store/{key} -X GET
+
+
+#PUT
+
+
+curl -i http://localhost:1337/kv-store/kiwi -d "val=green" -X PUT
+
+curl -i http://10.0.0.21:8080/kv-store/update_view?type=remove -d "ip_port=10.0.0.22:8080" -X PUT
+
+curl -i http://10.0.0.21:8080/kv-store/update_view?type=add -d "ip_port=10.0.0.22:8080" -X PUT
+
+
+#DEL
+
+
+curl -i http://10.0.0.22:8080/kv-store/{key} -X DEL
+
+curl -i http://10.0.0.22:8080/kv-store -X DEL

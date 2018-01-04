@@ -9,17 +9,21 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gorilla/mux" //import router
 )
 
+//node's vars
 var keyVals map[string]string //map (dictionary) of string:string
+var ipport string             //node's own "<IP:Port>"
+var view []string             //node's initial view passed in through env
 
 // GetAllKeys displays all from the keyVals var
 func GetAllKeys(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(keyVals) //200
-	return
 }
 
 // GetKey displays a single data
@@ -76,17 +80,22 @@ func DeleteKey(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
 }
 
-func main() {
-	router := mux.NewRouter()              //init router
-	keyVals = make(map[string]string, 100) //initialize with 100 keys
+// DeleteAll deletes all key:value pairs in the kvs map
+func DeleteAll(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	//hard coded entries to test
-	keyVals["apple"] = "red"
-	keyVals["banana"] = "yellow"
-	keyVals["lime"] = "green"
-	keyVals["blueberry"] = "blue"
-	keyVals["orange"] = "orange"
-	keyVals["grape"] = "purple"
+	for key := range keyVals {
+		delete(keyVals, key)
+	}
+
+	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
+}
+
+func main() {
+	router := mux.NewRouter()                    //init router
+	keyVals = make(map[string]string, 100)       //initialize with 100 keys
+	ipport = os.Getenv("IPPORT")                 //get node's ipport from env
+	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
 
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
@@ -97,6 +106,8 @@ func main() {
 	router.HandleFunc("/kv-store/{key}/", PutKey).Methods("PUT")
 	router.HandleFunc("/kv-store/{key}", DeleteKey).Methods("DEL")
 	router.HandleFunc("/kv-store/{key}/", DeleteKey).Methods("DEL")
+	router.HandleFunc("/kv-store", DeleteAll).Methods("DEL")
+	router.HandleFunc("/kv-store/", DeleteAll).Methods("DEL")
 
-	log.Fatal(http.ListenAndServe("localhost:1337", router))
+	log.Fatal(http.ListenAndServe(ipport, router))
 }
