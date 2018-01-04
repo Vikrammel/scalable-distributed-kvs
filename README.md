@@ -1,7 +1,7 @@
-###Distributed, Fault Tolerant Key-Value Store written in Golang###
-###by Vikram Melkote and Mike Hamilton###
+#Distributed, Fault-Tolerant Key-Value Store written in Golang#
+##by Vikram Melkote and Mike Hamilton###
 
-##Set Up##
+###Set-Up###
 
 * to make a docker subnet:
 
@@ -11,7 +11,7 @@
 
 	`sudo docker build -t mycontainer .`
 
-##Usage##
+###Usage###
 
 * to start a full node example:
 
@@ -65,7 +65,7 @@ to view kvs of a node:
 
 * navigate to `http://<nodebridgeip:bridgeport>/kv-store` optionally add `/<key>`
 
-##TO-DO (differently than old flask build):##
+###TO-DO (differently than old flask build):###
 
 * Abstract helper functions into separate files for readability
 
@@ -79,7 +79,7 @@ to view kvs of a node:
 
 * make sorting of arrays more efficient
 
-##Problems to debug from old flask implementation (if encountered after rebuild):##
+###Problems to debug from old flask implementation (if encountered after rebuild):###
 
 * dataCluster is empty in getPartition()
 
@@ -88,7 +88,7 @@ to view kvs of a node:
 
 * _getAllKeys! causes broken pipe (I think in test 8)
 
-##Resources##
+###Resources###
 
 Golang
 
