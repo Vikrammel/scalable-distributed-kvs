@@ -17,46 +17,86 @@ var keyVals map[string]string //map (dictionary) of string:string
 
 // GetAllKeys displays all from the keyVals var
 func GetAllKeys(w http.ResponseWriter, r *http.Request) {
-	keyVals["apple"] = "red" //hard coded entry to test
-	json.NewEncoder(w).Encode(keyVals)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(keyVals) //200
+	return
 }
 
 // GetKey displays a single data
 func GetKey(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	for key, value := range keyVals {
 		if key == params["key"] {
-			json.NewEncoder(w).Encode(value)
+			json.NewEncoder(w).Encode(value) //200
 			return
 		}
 	}
-	type noKeyError struct {
-		errStr string `json:"errStr"`
-		msg    string `json:"msg"`
-	}
-	json.NewEncoder(w).Encode(&noKeyError{errStr: "error", msg: "key not found"})
+
+	w.WriteHeader(http.StatusNotFound) //404
+	json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
 }
 
-// // PutKey creates/updates a key
-// func PutKey(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
-//
-// }
+// PutKey creates/updates a key
+func PutKey(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	value := ""
 
-// // DeleteKey deletes a key
-// func DeleteKey(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
-//
-// }
+	//erro checking inputs
+	if r.Body == nil {
+		//http.Error(w, "Please send a request body", 400)
+		w.WriteHeader(http.StatusBadRequest) //400
+		json.NewEncoder(w).Encode(&map[string]string{"Error": "No request body"})
+		return
+	}
+	value = r.PostFormValue("val")
+	if !(len(value) > 0) {
+		value = ""
+	} //make sure value is a valid empty str
+	keyVals[params["key"]] = value //store/update user's value for key
+
+	json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} updated"}) //200
+}
+
+// DeleteKey deletes a key
+func DeleteKey(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	for key, value := range keyVals {
+		if key == params["key"] {
+			delete(keyVals, params["key"])
+			json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} deleted"}) //200
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNotFound) //404
+	json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
+}
 
 func main() {
-	router := mux.NewRouter() //init router
+	router := mux.NewRouter()              //init router
+	keyVals = make(map[string]string, 100) //initialize with 100 keys
 
-	//funcs for routes
+	//hard coded entries to test
+	keyVals["apple"] = "red"
+	keyVals["banana"] = "yellow"
+	keyVals["lime"] = "green"
+	keyVals["blueberry"] = "blue"
+	keyVals["orange"] = "orange"
+	keyVals["grape"] = "purple"
+
+	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
+	router.HandleFunc("/kv-store/", GetAllKeys).Methods("GET")
 	router.HandleFunc("/kv-store/{key}", GetKey).Methods("GET")
-	// 	router.HandleFunc("/kv-store/{key}", PutKey).Methods("POST")
-	// 	router.HandleFunc("/kv-store/{key}", DeleteKey).Methods("DELETE")
+	router.HandleFunc("/kv-store/{key}/", GetKey).Methods("GET")
+	router.HandleFunc("/kv-store/{key}", PutKey).Methods("PUT")
+	router.HandleFunc("/kv-store/{key}/", PutKey).Methods("PUT")
+	router.HandleFunc("/kv-store/{key}", DeleteKey).Methods("DEL")
+	router.HandleFunc("/kv-store/{key}/", DeleteKey).Methods("DEL")
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe("localhost:1337", router))
 }
