@@ -12,6 +12,8 @@ import (
 	"os"
 	"strings"
 
+	"ipsorting"
+
 	"github.com/gorilla/mux" //import router
 )
 
@@ -19,11 +21,16 @@ import (
 var keyVals map[string]string //map (dictionary) of string:string
 var ipport string             //node's own "<IP:Port>"
 var view []string             //node's initial view passed in through env
+var isPrimary bool
 
 // GetAllKeys displays all from the keyVals var
 func GetAllKeys(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(keyVals) //200
+	if isPrimary {
+		json.NewEncoder(w).Encode(keyVals) //200
+	} else {
+
+	}
 }
 
 // GetKey displays a single data
@@ -91,11 +98,15 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
 
+//init
 func main() {
 	router := mux.NewRouter()                    //init router
 	keyVals = make(map[string]string, 100)       //initialize with 100 keys
 	ipport = os.Getenv("IPPORT")                 //get node's ipport from env
 	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
+
+	sortedView := ipsorting.SortIPs(view)
+	log.Println(sortedView)
 
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")

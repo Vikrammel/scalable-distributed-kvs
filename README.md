@@ -1,7 +1,7 @@
 #Distributed, Fault-Tolerant Key-Value Store written in Golang#
-##by Vikram Melkote and Mike Hamilton###
+## by Vikram Melkote and Mike Hamilton
 
-###Set-Up###
+### Set-Up
 
 * to make a docker subnet:
 
@@ -11,7 +11,7 @@
 
 	`sudo docker build -t mycontainer .`
 
-###Usage###
+### Usage
 
 * to start a full node example:
 
@@ -65,7 +65,7 @@ to view kvs of a node:
 
 * navigate to `http://<nodebridgeip:bridgeport>/kv-store` optionally add `/<key>`
 
-###TO-DO (differently than old flask build):###
+### TO-DO (differently than old flask build):
 
 * Abstract helper functions into separate files for readability
 
@@ -79,7 +79,7 @@ to view kvs of a node:
 
 * make sorting of arrays more efficient
 
-###Problems to debug from old flask implementation (if encountered after rebuild):###
+### Problems to debug from old flask implementation (if encountered after rebuild):
 
 * dataCluster is empty in getPartition()
 
@@ -88,7 +88,7 @@ to view kvs of a node:
 
 * _getAllKeys! causes broken pipe (I think in test 8)
 
-###Resources###
+### Resources
 
 Golang
 
@@ -99,6 +99,8 @@ Golang
 [Golang official specification](https://golang.org/ref/spec)
 
 [Encoding/decoding JSON in Golang](https://kev.inburke.com/kevin/golang-json-http/)
+
+[Working with arrays/slices in Golang](https://blog.golang.org/go-slices-usage-and-internals)
 
 [Golang HTTP status presets](https://golang.org/src/net/http/status.go)
 
@@ -115,6 +117,8 @@ Golang + vscode
 [issue with delv for golang<=1.7](https://github.com/derekparker/delve/issues/936)
 
 [godoc command is not available fix](https://github.com/Microsoft/vscode-go/issues/446)
+
+* for syntax highlighting for imported packages to work in vscode, copy everything in `<projectroot>/app/vendor` to `~/go/src`
 
 * note: beware of noting things down in your code, vscode marks extraneous code as wrong or even removes it entirely upon save
 
