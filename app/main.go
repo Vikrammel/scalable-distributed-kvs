@@ -28,7 +28,7 @@ func GetAllKeys(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if isPrimary {
 		json.NewEncoder(w).Encode(keyVals) //200
-	} else {
+	} else { //backup
 
 	}
 }
@@ -37,15 +37,19 @@ func GetAllKeys(w http.ResponseWriter, r *http.Request) {
 func GetKey(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	for key, value := range keyVals {
-		if key == params["key"] {
-			json.NewEncoder(w).Encode(value) //200
-			return
+	if isPrimary {
+		for key, value := range keyVals {
+			if key == params["key"] {
+				json.NewEncoder(w).Encode(value) //200
+				return
+			}
 		}
+		w.WriteHeader(http.StatusNotFound) //404
+		json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
+	} else { //backup
+
 	}
 
-	w.WriteHeader(http.StatusNotFound) //404
-	json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
 }
 
 // PutKey creates/updates a key
@@ -54,20 +58,17 @@ func PutKey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	value := ""
 
-	//erro checking inputs
-	if r.Body == nil {
-		//http.Error(w, "Please send a request body", 400)
-		w.WriteHeader(http.StatusBadRequest) //400
-		json.NewEncoder(w).Encode(&map[string]string{"Error": "No request body"})
-		return
-	}
-	value = r.PostFormValue("val")
-	if !(len(value) > 0) {
-		value = ""
-	} //make sure value is a valid empty str
-	keyVals[params["key"]] = value //store/update user's value for key
+	if isPrimary {
+		value = r.PostFormValue("val")
+		if !(len(value) > 0) {
+			value = ""
+		} //make sure value is a valid empty str
+		keyVals[params["key"]] = value //store/update user's value for key
 
-	json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} updated"}) //200
+		json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} updated"}) //200
+	} else { //backup
+
+	}
 }
 
 // DeleteKey deletes a key
@@ -75,27 +76,35 @@ func DeleteKey(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
-	for key, value := range keyVals {
-		if key == params["key"] {
-			delete(keyVals, params["key"])
-			json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} deleted"}) //200
-			return
+	if isPrimary {
+		for key, value := range keyVals {
+			if key == params["key"] {
+				delete(keyVals, params["key"])
+				json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} deleted"}) //200
+				return
+			}
 		}
-	}
+	
+		w.WriteHeader(http.StatusNotFound) //404
+		json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
+	} else { //backup
 
-	w.WriteHeader(http.StatusNotFound) //404
-	json.NewEncoder(w).Encode(&map[string]string{"Error": "Key not found"})
+	}
 }
 
 // DeleteAll deletes all key:value pairs in the kvs map
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	for key := range keyVals {
-		delete(keyVals, key)
+	if isPrimary {
+		for key := range keyVals {
+			delete(keyVals, key)
+		}
+	
+		json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
+	} else { //backup
+		
 	}
-
-	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
 
 //init
@@ -105,8 +114,10 @@ func main() {
 	ipport = os.Getenv("IPPORT")                 //get node's ipport from env
 	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
 
-	sortedView := ipsorting.SortIPs(view)
-	log.Println(sortedView)
+	view = ipsorting.SortIPs(view)
+	if view[0] == ipport {
+		isPrimary = true
+	}
 
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
