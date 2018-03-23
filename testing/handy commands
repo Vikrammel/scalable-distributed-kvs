@@ -22,7 +22,7 @@ curl -i http://10.0.0.22:8080/kv-store/{key} -X GET
 #PUT
 
 
-curl -i http://localhost:1337/kv-store/kiwi -d "val=green" -X PUT
+curl -i http://10.0.0.21:8080/kv-store/kiwi -d "val=green" -X PUT
 
 curl -i http://10.0.0.21:8080/kv-store/update_view?type=remove -d "ip_port=10.0.0.22:8080" -X PUT
 

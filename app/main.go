@@ -26,11 +26,7 @@ var isPrimary bool
 // GetAllKeys displays all from the keyVals var
 func GetAllKeys(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	if isPrimary {
-		json.NewEncoder(w).Encode(keyVals) //200
-	} else {
-
-	}
+	json.NewEncoder(w).Encode(keyVals) //200
 }
 
 // GetKey displays a single data
