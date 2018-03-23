@@ -1,0 +1,112 @@
+
+
+========== Single-Site KVS Test Output ==========
+
+
+
+Stopping all containers ...
+
+
+
+Creating docker network 'mynet' ...
+
+
+
+Starting node with IP:Port 10.0.0.24:8080 ...
+
+
+
+======== PUT 5 {'<fruit>':'<color>'} pairs in KVS ========
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 54
+
+{"Success":"key value pair {'kiwi':'green'} updated"}
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 53
+
+{"Success":"key value pair {'apple':'red'} updated"}
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 57
+
+{"Success":"key value pair {'banana':'yellow'} updated"}
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 56
+
+{"Success":"key value pair {'grape':'purple'} updated"}
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 57
+
+{"Success":"key value pair {'papaya':'orange'} updated"}
+
+
+======== GET key-value pair for key 'banana' from KVS ========
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 9
+
+"yellow"
+
+
+======== GET all key-value pairs from KVS ========
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 84
+
+{"apple":"red","banana":"yellow","grape":"purple","kiwi":"green","papaya":"orange"}
+
+
+======== DEL key-value pair for key 'grape' from KVS ========
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 56
+
+{"Success":"key value pair {'grape':'purple'} deleted"}
+
+
+======== GET key-value pair for key 'grape' from KVS ========
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:57 GMT
+Content-Length: 26
+
+{"Error":"Key not found"}
+
+
+======== GET all key-value pairs from KVS ========
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 23 Mar 2018 23:10:58 GMT
+Content-Length: 67
+
+{"apple":"red","banana":"yellow","kiwi":"green","papaya":"orange"}
+
+
+
+Stopping all containers ...
+
+e03a9f4eedf0
+
+
+
+========== End of Single-Site KVS Tests ==========
