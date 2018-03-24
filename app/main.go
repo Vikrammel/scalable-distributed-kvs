@@ -21,7 +21,7 @@ import (
 var keyVals map[string]string //map (dictionary) of string:string
 var ipport string             //node's own "<IP:Port>"
 var view []string             //node's initial view passed in through env
-var isPrimary bool
+var nodesPerCluster int		  //number of nodes in each cluster
 
 // GetAllKeys displays all from the keyVals var
 func GetAllKeys(w http.ResponseWriter, r *http.Request) {
@@ -99,6 +99,7 @@ func main() {
 	router := mux.NewRouter()                    //init router
 	keyVals = make(map[string]string, 100)       //initialize with 100 keys
 	ipport = os.Getenv("IPPORT")                 //get node's ipport from env
+	nodesPerCluster = os.Getenv("K")
 	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
 
 	sortedView := ipsorting.SortIPs(view)
