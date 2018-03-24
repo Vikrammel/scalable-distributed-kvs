@@ -8,7 +8,7 @@ import (
 
 func updateCDict(){
     //sort view and update cDict off of view
-    view = ipsorting.sortIPs(view)
+    view = ipsorting.SortIPs(view)
     for index,node := range view{
         clusterID = index/nodesPerCluster
 		cDict[node] = clusterID

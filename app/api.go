@@ -27,7 +27,7 @@ func GetKey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	if params["key"] == "get_partition_id" {
-		json.NewEncoder(w).Encode(partitionID) //200
+		json.NewEncoder(w).Encode(clusterID) //200
 		return
 	}
 

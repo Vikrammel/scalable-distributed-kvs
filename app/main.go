@@ -2,6 +2,7 @@
 //written by Vikram Melkote
 //note: remember, when file is saved in vs code, code is auto formatted and unused
 // code is removed. Make sure to comment out unused code or it won't persist
+//'cluster' and 'partition' refer to the same thing
 
 package main
 
