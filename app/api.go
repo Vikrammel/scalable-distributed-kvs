@@ -1,3 +1,5 @@
+//functions that are mapped to the different routes of nodes' API
+
 package main
 
 import (

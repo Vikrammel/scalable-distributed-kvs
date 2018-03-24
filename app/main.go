@@ -1,5 +1,5 @@
 //main file for running node in kvs
-//written by Vikram
+//written by Vikram Melkote
 //note: remember, when file is saved in vs code, code is auto formatted and unused
 // code is removed. Make sure to comment out unused code or it won't persist
 
@@ -23,7 +23,18 @@ var keyVals map[string]string //map (dictionary) of string:string
 var ipport string             //node's own "<IP:Port>"
 var view []string             //node's initial view passed in through env
 var nodesPerCluster int		  //number of nodes in each cluster ('K' from env)
-var partitionID int			  //partition index node belongs to
+var clusterID int			  //cluster index node belongs to
+var isReplica bool
+//Dictionaries acting as a vector clock and timestamps. key -> local clock value/timestamp.
+var vClock map[string]int
+var storedTimeStamp map [string]int
+var hashRing []string //sorted ring of hashes
+var hashClusterMap map[string]int //maps buckets to cluster indexes
+var cDict map[string]int //dictionary mapping node IPs to cluster indicies
+
+//Strings to prepend onto URL.
+var http_str string = "http://"
+var kv_str string = "/kv-store/"
 
 //init
 func main() {
@@ -40,7 +51,7 @@ func main() {
 	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
 
 	//set vars
-	partitionID = 0
+	clusterID = 0
 	sortedView := ipsorting.SortIPs(view)
 	log.Println(sortedView)
 
