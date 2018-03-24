@@ -6,6 +6,9 @@
 
 Stopping all containers ...
 
+866c06bb345e
+94584bf17455
+3f69316150ea
 
 
 Creating docker network 'mynet' ...
@@ -19,7 +22,7 @@ Starting node with IP:Port 10.0.0.24:8080 ...
 ======== PUT 5 {'<fruit>':'<color>'} pairs in KVS ========
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 54
 
 {"Success":"key value pair {'kiwi':'green'} updated"}
@@ -27,7 +30,7 @@ Content-Length: 54
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 53
 
 {"Success":"key value pair {'apple':'red'} updated"}
@@ -35,7 +38,7 @@ Content-Length: 53
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 57
 
 {"Success":"key value pair {'banana':'yellow'} updated"}
@@ -43,7 +46,7 @@ Content-Length: 57
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 56
 
 {"Success":"key value pair {'grape':'purple'} updated"}
@@ -51,7 +54,7 @@ Content-Length: 56
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 57
 
 {"Success":"key value pair {'papaya':'orange'} updated"}
@@ -60,7 +63,7 @@ Content-Length: 57
 ======== GET key-value pair for key 'banana' from KVS ========
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 9
 
 "yellow"
@@ -69,7 +72,7 @@ Content-Length: 9
 ======== GET all key-value pairs from KVS ========
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 84
 
 {"apple":"red","banana":"yellow","grape":"purple","kiwi":"green","papaya":"orange"}
@@ -78,7 +81,7 @@ Content-Length: 84
 ======== DEL key-value pair for key 'grape' from KVS ========
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 56
 
 {"Success":"key value pair {'grape':'purple'} deleted"}
@@ -87,7 +90,7 @@ Content-Length: 56
 ======== GET key-value pair for key 'grape' from KVS ========
 HTTP/1.1 404 Not Found
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:57 GMT
+Date: Sat, 24 Mar 2018 21:11:02 GMT
 Content-Length: 26
 
 {"Error":"Key not found"}
@@ -96,7 +99,7 @@ Content-Length: 26
 ======== GET all key-value pairs from KVS ========
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 23 Mar 2018 23:10:58 GMT
+Date: Sat, 24 Mar 2018 21:11:03 GMT
 Content-Length: 67
 
 {"apple":"red","banana":"yellow","kiwi":"green","papaya":"orange"}
@@ -105,7 +108,7 @@ Content-Length: 67
 
 Stopping all containers ...
 
-e03a9f4eedf0
+e6fa109bd34f
 
 
 
