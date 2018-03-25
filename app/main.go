@@ -11,8 +11,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 
 	"ipsorting"
 
@@ -20,30 +20,31 @@ import (
 )
 
 //node's vars
-var keyVals map[string]string //map (dictionary) of string:string
-var ipport string             //node's own "<IP:Port>"
-var view []string             //node's initial view passed in through env
-var nodesPerCluster int		  //number of nodes in each cluster ('K' from env)
-var clusterID int			  //cluster index node belongs to
-var isReplica bool
-//Dictionaries acting as a vector clock and timestamps. key -> local clock value/timestamp.
-var vClock map[string]int
-var storedTimeStamp map [string]int
-var hashRing []string //sorted ring of hashes
-var hashClusterMap map[string]int //maps buckets to cluster indexes
-var cDict map[string]int //dictionary mapping node IPs to cluster indicies
-
+var keyVals map[string]string      //map (dictionary) of string:string
+var ipport string                  //node's own "<IP:Port>"
+var view []string                  //node's view, initially passed in through env
+var notInView []string             //nodes not in view, pinged in heartbeat in case they're back
+var nodesPerCluster int            //number of nodes in each cluster ('K' from env)
+var clusterID int                  //cluster index node belongs to
+var isReplica bool                 //node type of this node
+var vClock map[string]int          //maps keys to logical clock values
+var storedTimeStamp map[string]int //maps keys to latest timestamp
+var hashRing []string              //sorted ring of hashes
+var hashClusterMap map[string]int  //maps buckets to cluster indexes
+var cDict map[string]int           //dictionary mapping node IPs to cluster indicies
+var localCluster []string          //list of IPs in the local cluster (could be proxy cluster)
+var proxies []string               //list of proxy IPs in the network
 //Strings to prepend onto URL.
-var http_str string = "http://"
-var kv_str string = "/kv-store/"
+var httpStr = "http://"
+var kvStr = "/kv-store/"
 
 //init
 func main() {
-	router := mux.NewRouter()                    //init router
-	keyVals = make(map[string]string, 100)       //initialize with 100 keys
+	router := mux.NewRouter()              //init router
+	keyVals = make(map[string]string, 100) //initialize with 100 keys
 
 	//get environmental info
-	ipport = os.Getenv("IPPORT")                 //get node's ipport from env
+	ipport = os.Getenv("IPPORT") //get node's ipport from env
 	var err error
 	nodesPerCluster, err = strconv.Atoi(os.Getenv("K"))
 	if err != nil {
