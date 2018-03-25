@@ -21,7 +21,7 @@ import (
 
 //node's vars
 var keyVals map[string]string      //map (dictionary) of string:string
-var ipport string                  //node's own "<IP:Port>"
+var ipPort string                  //node's own "<IP:Port>"
 var view []string                  //node's view, initially passed in through env
 var notInView []string             //nodes not in view, pinged in heartbeat in case they're back
 var nodesPerCluster int            //number of nodes in each cluster ('K' from env)
@@ -37,6 +37,7 @@ var proxies []string               //list of proxy IPs in the network
 //Strings to prepend onto URL.
 var httpStr = "http://"
 var kvStr = "/kv-store/"
+var newline = "\n"
 
 //init
 func main() {
@@ -44,16 +45,24 @@ func main() {
 	keyVals = make(map[string]string, 100) //initialize with 100 keys
 
 	//get environmental info
-	ipport = os.Getenv("IPPORT") //get node's ipport from env
+	ipPort = os.Getenv("IPPORT") //get node's ipPort from env
 	var err error
 	nodesPerCluster, err = strconv.Atoi(os.Getenv("K"))
 	if err != nil {
 		log.Println(err)
 	}
-	view = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
 
-	//set vars
+	//initialize views, all in 'view' env go to notInView because we don't know if they are up,
+	//we'll check for them in the first heartbeat
+	notInView = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
+	notInView = ipsorting.SortIPs(notInView)
+	//initially we're only sure that the node itself is online
+	view = append(view, ipPort)
+
+	//set initial vars
 	clusterID = 0
+	isReplica = false //initialize as proxy
+
 	sortedView := ipsorting.SortIPs(view)
 	log.Println(sortedView)
 
@@ -69,5 +78,5 @@ func main() {
 	router.HandleFunc("/kv-store", DeleteAll).Methods("DEL")
 	router.HandleFunc("/kv-store/", DeleteAll).Methods("DEL")
 
-	log.Fatal(http.ListenAndServe(ipport, router))
+	log.Fatal(http.ListenAndServe(ipPort, router))
 }

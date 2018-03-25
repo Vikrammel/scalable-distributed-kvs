@@ -3,6 +3,9 @@
 package main
 
 import (
+	"log"
+	"strings"
+
 	"ipsorting"
 )
 
@@ -50,4 +53,49 @@ func removeProxy(ip string) {
 			remove(ip, view)
 		}
 	}
+}
+
+//heartbeat function to ping nodes and adjust the view
+func heartBeat() {
+	// heart = threading.Timer(3.0, heartBeat)
+	// heart.daemon = True
+	// heart.start()
+
+	// if firstHeartBeat:
+	//     firstHeartBeat = False
+	//     return
+
+	log.Println("My IP: " + ipPort + newline +
+		"View: " + strings.Join(view, ", ") + newline +
+		"Cluster Map: " + clusterMapToString(cDict) + newline +
+		"Proxies: " + strings.Join(proxies, ", "))
+
+	/*
+		    for ip in notInView: //check if any nodes not currently in view came back online
+		        try:
+		            response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
+		            if response['result'] == 'success':
+		                notInView.remove(ip)
+		                view.append(ip)
+		                view = sortIPs(view)
+		                #updateHashRing()
+		        except: #Handle no response from i
+		            pass
+		    for ip in view:
+		        if ip != IpPort:
+		            try:
+		                response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
+		            except requests.exceptions.RequestException as exc: #Handle no response from ip
+		                if ip in replicas:
+		                    removeReplica(ip)
+		                elif ip in proxies:
+		                    removeProxie(ip)
+		                notInView.append(ip)
+		                notInView = sortIPs(notInView)
+		                #updateHashRing()
+		    updateRatio()
+		    print("reps " + str(replicas))
+		    print("prox " + str(proxies))
+			sys.stdout.flush()
+	*/
 }

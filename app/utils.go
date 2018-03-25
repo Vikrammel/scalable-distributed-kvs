@@ -1,6 +1,11 @@
 //functions that provide basic utilities and tools
 package main
 
+import (
+	"bytes"
+	"fmt"
+)
+
 //checks if string is in slice
 //https://stackoverflow.com/a/15323988
 func stringInSlice(a string, list []string) bool {
@@ -21,4 +26,12 @@ func remove(r string, s []string) []string {
 		}
 	}
 	return s
+}
+
+func clusterMapToString(m map[string]int) string {
+	mapString := new(bytes.Buffer)
+	for node, clusterIndex := range m {
+		fmt.Fprintf(mapString, "%s=\"%d\"\n", node, clusterIndex)
+	}
+	return mapString.String()
 }
