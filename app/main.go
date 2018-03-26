@@ -7,6 +7,7 @@
 package main
 
 import (
+	"time"
 	// "encoding/json"
 	"log"
 	"net/http"
@@ -34,6 +35,13 @@ var hashClusterMap map[string]int  //maps buckets to cluster indexes
 var cDict map[string]int           //dictionary mapping node IPs to cluster indicies
 var localCluster []string          //list of IPs in the local cluster (could be proxy cluster)
 var proxies []string               //list of proxy IPs in the network
+
+//set up request properties
+var requestTimeout = time.Duration(175 * time.Millisecond)
+var httpClient = http.Client{
+	Timeout: requestTimeout,
+}
+
 //Strings to prepend onto URL.
 var httpStr = "http://"
 var kvStr = "/kv-store/"
@@ -65,6 +73,8 @@ func main() {
 
 	sortedView := ipsorting.SortIPs(view)
 	log.Println(sortedView)
+
+	heartBeat() //start heartBeat()
 
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
