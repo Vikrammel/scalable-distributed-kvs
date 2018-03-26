@@ -29,17 +29,17 @@ func updateCDict() {
 //isn't added back by heartbeat
 func removeNode(ip string, crash bool) {
 	if stringInSlice(ip, localCluster) {
-		remove(ip, localCluster)
+		localCluster = remove(ip, localCluster)
 		localCluster = ipsorting.SortIPs(localCluster)
 	}
 
 	if stringInSlice(ip, proxies) {
-		remove(ip, proxies)
+		proxies = remove(ip, proxies)
 		proxies = ipsorting.SortIPs(proxies)
 	}
 
 	if stringInSlice(ip, view) {
-		remove(ip, view)
+		view = remove(ip, view)
 		view = ipsorting.SortIPs(view)
 	}
 
@@ -54,7 +54,7 @@ func removeNode(ip string, crash bool) {
 	}
 
 	if crash == false && stringInSlice(ip, notInView) {
-		remove(ip, notInView)
+		notInView = remove(ip, notInView)
 		notInView = ipsorting.SortIPs(notInView)
 	}
 }
@@ -74,17 +74,23 @@ func heartBeat() {
 
 		log.Println("My IP: " + ipPort + newline +
 			"View: " + strings.Join(view, ", ") + newline +
+			"notInView: " + strings.Join(notInView, ", ") + newline +
 			"Cluster Map: " + clusterMapToString(cDict) + newline +
 			"Proxies: " + strings.Join(proxies, ", "))
 
 		//loop through notInView to see if any nodes in there have come online
 		for _, node := range notInView {
 			alive := pingNode(node)
+			nodeStatus := " dead"
+			if alive {
+				nodeStatus = " alive"
+			}
+			log.Println(node + nodeStatus)
 			if alive {
 				if stringInSlice(node, view) == false {
 					view = append(view, node)
 				}
-				remove(node, notInView)
+				notInView = remove(node, notInView)
 			}
 		}
 

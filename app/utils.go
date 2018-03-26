@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 )
 
 //checks if string is in slice
@@ -41,6 +42,7 @@ func clusterMapToString(m map[string]int) string {
 //pings input node to check if it's online, returns true if it is, else false
 func pingNode(node string) bool {
 	// Make request for node's clusterID
+	log.Println("pinging " + node)
 	rs, err := httpClient.Get(httpStr + node + kvStr + "get_partition_id")
 	// Error handling
 	if err == nil {
@@ -49,10 +51,13 @@ func pingNode(node string) bool {
 
 		_, err := ioutil.ReadAll(rs.Body)
 		if err == nil {
+			log.Println(node + " response parsed successfully")
 			return true //node is online, response is good
 		}
+		log.Println(node + " response parsing failed")
 		return false //bad response
 		// bodyString := string(bodyBytes)
 	}
+	log.Println(node + " request error: " + err.Error())
 	return false //error pinging node, consider offline
 }

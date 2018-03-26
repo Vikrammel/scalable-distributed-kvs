@@ -63,6 +63,9 @@ func main() {
 	//initialize views, all in 'view' env go to notInView because we don't know if they are up,
 	//we'll check for them in the first heartbeat
 	notInView = strings.Split(os.Getenv("VIEW"), ",") //get node's initial view from env
+	if stringInSlice(ipPort, notInView) {
+		notInView = remove(ipPort, notInView)
+	}
 	notInView = ipsorting.SortIPs(notInView)
 	//initially we're only sure that the node itself is online
 	view = append(view, ipPort)
