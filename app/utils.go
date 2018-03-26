@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"time"
 )
 
 //checks if string is in slice
@@ -28,6 +29,13 @@ func remove(r string, s []string) []string {
 		}
 	}
 	return s
+}
+
+//https://gist.github.com/ryanfitz/4191392
+func doEvery(d time.Duration, f func(time.Time)) {
+	for x := range time.Tick(d) {
+		f(x)
+	}
 }
 
 //converts the map of node IPs:clusterID to a string
