@@ -60,79 +60,79 @@ func removeNode(ip string, crash bool) {
 }
 
 //heartbeat function to ping nodes and adjust the view
-func heartBeat(t time.Time) {
-	// for {
-	// heart = threading.Timer(3.0, heartBeat)
-	// heart.daemon = True
-	// heart.start()
+func heartBeat() {
+	for {
+		// heart = threading.Timer(3.0, heartBeat)
+		// heart.daemon = True
+		// heart.start()
 
-	// if firstHeartBeat:
-	//     firstHeartBeat = False
-	//     return
+		// if firstHeartBeat:
+		//     firstHeartBeat = False
+		//     return
 
-	time.Sleep(2 * time.Second) //run heartbeat every 2s
+		time.Sleep(2 * time.Second) //run heartbeat every 2s
 
-	log.Println("My IP: " + ipPort + newline +
-		"View: " + strings.Join(view, ", ") + newline +
-		"notInView: " + strings.Join(notInView, ", ") + newline +
-		"Cluster Map: " + clusterMapToString(cDict) + newline +
-		"Proxies: " + strings.Join(proxies, ", "))
+		log.Println("My IP: " + ipPort + newline +
+			"View: " + strings.Join(view, ", ") + newline +
+			"notInView: " + strings.Join(notInView, ", ") + newline +
+			"Cluster Map: " + clusterMapToString(cDict) + newline +
+			"Proxies: " + strings.Join(proxies, ", "))
 
-	//loop through notInView to see if any nodes in there have come online
-	for _, node := range notInView {
-		alive := pingNode(node)
-		nodeStatus := " dead"
-		if alive {
-			nodeStatus = " alive"
-		}
-		log.Println(node + nodeStatus)
-		if alive {
-			if stringInSlice(node, view) == false {
-				view = append(view, node)
+		//loop through notInView to see if any nodes in there have come online
+		for _, node := range notInView {
+			alive := pingNode(node)
+			nodeStatus := " dead"
+			if alive {
+				nodeStatus = " alive"
 			}
-			notInView = remove(node, notInView)
+			log.Println(node + nodeStatus)
+			if alive {
+				if stringInSlice(node, view) == false {
+					view = append(view, node)
+				}
+				notInView = remove(node, notInView)
+			}
 		}
+
+		//loop through view to see if any nodes in there have now gone offline
+		for _, node := range view {
+			if node == ipPort { //don't ping self
+				continue
+			}
+
+			alive := pingNode(node)
+			if alive == false {
+				removeNode(node, true)
+			}
+		}
+
+		/* old python code to translate/improve
+		    for ip in notInView: //check if any nodes not currently in view came back online
+		        try:
+		            response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
+		            if response['result'] == 'success':
+		                notInView.remove(ip)
+		                view.append(ip)
+		                view = sortIPs(view)
+		                #updateHashRing()
+		        except: #Handle no response from i
+		            pass
+		    for ip in view:
+		        if ip != IpPort:
+		            try:
+		                response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
+		            except requests.exceptions.RequestException as exc: #Handle no response from ip
+		                if ip in replicas:
+		                    removeReplica(ip)
+		                elif ip in proxies:
+		                    removeProxie(ip)
+		                notInView.append(ip)
+		                notInView = sortIPs(notInView)
+		                #updateHashRing()
+		    updateRatio()
+		    print("reps " + str(replicas))
+		    print("prox " + str(proxies))
+			sys.stdout.flush()
+		*/
 	}
-
-	//loop through view to see if any nodes in there have now gone offline
-	for _, node := range view {
-		if node == ipPort { //don't ping self
-			continue
-		}
-
-		alive := pingNode(node)
-		if alive == false {
-			removeNode(node, true)
-		}
-	}
-
-	/* old python code to translate/improve
-	    for ip in notInView: //check if any nodes not currently in view came back online
-	        try:
-	            response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
-	            if response['result'] == 'success':
-	                notInView.remove(ip)
-	                view.append(ip)
-	                view = sortIPs(view)
-	                #updateHashRing()
-	        except: #Handle no response from i
-	            pass
-	    for ip in view:
-	        if ip != IpPort:
-	            try:
-	                response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
-	            except requests.exceptions.RequestException as exc: #Handle no response from ip
-	                if ip in replicas:
-	                    removeReplica(ip)
-	                elif ip in proxies:
-	                    removeProxie(ip)
-	                notInView.append(ip)
-	                notInView = sortIPs(notInView)
-	                #updateHashRing()
-	    updateRatio()
-	    print("reps " + str(replicas))
-	    print("prox " + str(proxies))
-		sys.stdout.flush()
-	*/
-	// }
 }

@@ -77,7 +77,7 @@ func main() {
 	sortedView := ipsorting.SortIPs(view)
 	log.Println(sortedView)
 
-	doEvery(2*time.Second, heartBeat) //start heartBeat()
+	go heartBeat() //start heartBeat()
 
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
