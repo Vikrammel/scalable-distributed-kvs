@@ -19,6 +19,16 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+//gets index of string in string slice
+func indexOf(str string, strSlice []string) int {
+	for ind, val := range strSlice {
+		if val == str {
+			return ind
+		}
+	}
+	return -1 //not in slice
+}
+
 //removes string from slice
 //https://stackoverflow.com/a/34070691
 func remove(r string, s []string) []string {
