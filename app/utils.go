@@ -2,6 +2,7 @@
 package main
 
 import (
+	"strings"
 	"bytes"
 	"fmt"
 	"io/ioutil"
@@ -70,4 +71,23 @@ func pingNode(node string) bool {
 	}
 	log.Println(node + " request error: " + err.Error())
 	return false //error pinging node, consider offline
+}
+
+//insert a string into a slice in the right place
+func insortStringIntoSlice(slice []string, str string) []string {
+	var returnSlice []string
+	inserted := false
+	for ind, currStr := range slice {
+		if strings.Compare(str, currStr) == -1 || strings.Compare(str, currStr) == 0 {
+			returnSlice = append(returnSlice, slice[:ind]...)
+			returnSlice = append(returnSlice, str)
+			returnSlice = append(returnSlice, slice[ind:]...)
+			inserted = true
+		}
+	}
+	if inserted == false {
+		copy(returnSlice, slice)
+		returnSlice = append(returnSlice, str)
+	}
+	return returnSlice
 }
