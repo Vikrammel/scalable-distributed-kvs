@@ -14,11 +14,13 @@ func updateHashRing() {
 	//make a set of unique vals (which are clusterIDs) from cDict to 
 	//generate buckets for
 	var clusterIDs []int
-    for _, clusterInd := range cDict{
-        if clusterInd == int(len(view)/nodesPerCluster){
+    for _, clusterInd := range cDict {
+        if clusterInd == int(len(view)/nodesPerCluster) {
 			continue
 		}
-		clusterIDs = append(clusterIDs, clusterInd)
+		if intInSlice(clusterInd, clusterIDs) == false {
+			clusterIDs = append(clusterIDs, clusterInd)
+		}
 	}
 
 	//traverse through set to generate 250 buckets for each clusters

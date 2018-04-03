@@ -91,3 +91,40 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
+
+func updateDatabase(){
+	for _,node := range localCluster {
+		if node == ipPort {
+			continue
+		}
+		// rs, err := http.Get("https://google.com")
+	}
+}
+/*
+def updateDatabase():
+    global replicas, notInView
+    for ip in replicas:
+        if ip == IpPort:
+            continue
+        try:
+            #TODO: create _getAll! function, returning [d, vClock, storedTimeStamp]
+            response = (requests.get((http_str + ip + kv_str + '_getAllKeys!'), timeout=5)).json()
+            try:
+                responseD = json.loads(response['dict'])
+            except:
+                _print("Can't get data from a halfNode")
+                continue
+            responseCausal = json.loads(response['causal_payload'])
+            responseTime = json.loads(response['timestamp'])
+            for key in json.loads(response['dict']):
+                if (d.get(key) == None or responseCausal[key] > vClock[key] or
+                   (responseCausal[key] == vClock[key] and responseTime[key] > storedTimeStamp[key])):
+                    d[key] = responseD[key].encode('ascii', 'ignore')
+                    vClock[key] = responseCausal[key]
+                    storedTimeStamp[key] = responseTime[key]
+        except requests.exceptions.RequestException: #Handle no response from ip
+            _print("updateDatabase timeout occured.")
+            removeReplica(ip)
+            notInView.append(ip)
+			notInView = sortIPs(notInView)
+*/
