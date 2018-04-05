@@ -5,7 +5,9 @@ package main
 import (
 	"encoding/json"
 	// "log"
+	"fmt"
 	"net/http"
+	"io/ioutil"
 	// "os"
 	// "strings"
 	// "strconv"
@@ -91,13 +93,34 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
+func _getDB(w http.ResponseWriter, r *http.Request){
+	//return {"result": "success", "dict": json.dumps(d), "causal_payload": json.dumps(vClock),
+	//	"timestamp": json.dumps(storedTimeStamp)}, 200
+	json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": kvStr, 
+		"causal_payload": vClock, "timestamp": storedTimeStamp}) //200
+}
 
 func updateDatabase(){
 	for _,node := range localCluster {
 		if node == ipPort {
 			continue
 		}
-		// rs, err := http.Get("https://google.com")
+		rs, err := http.Get(httpStr + node + kvStr + "_getDB")
+		if err != nil {
+			continue
+		}
+		defer rs.Body.Close()
+
+		bodyBytes, err := ioutil.ReadAll(rs.Body)
+		if err != nil {
+			continue
+		}
+		msgMap := make(map[string]interface{})
+		err2 := json.Unmarshal(bodyBytes, &msgMap)
+		if err2 != nil {
+			continue
+		}
+		fmt.Println(msgMap["kvs"])
 	}
 }
 /*

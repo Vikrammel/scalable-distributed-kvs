@@ -82,6 +82,7 @@ func main() {
 	//funcs for routes (with and without slashes at the end of URL)
 	router.HandleFunc("/kv-store", GetAllKeys).Methods("GET")
 	router.HandleFunc("/kv-store/", GetAllKeys).Methods("GET")
+	router.HandleFunc("/kv-store/_getDB", _getDB).Methods("GET")
 	router.HandleFunc("/kv-store/{key}", GetKey).Methods("GET")
 	router.HandleFunc("/kv-store/{key}/", GetKey).Methods("GET")
 	router.HandleFunc("/kv-store/{key}", PutKey).Methods("PUT")
