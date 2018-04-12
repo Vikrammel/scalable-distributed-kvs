@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"io"
 )
 
 //checks if string is in slice
@@ -50,12 +52,28 @@ func remove(r string, s []string) []string {
 	return s
 }
 
-//converts the map of node IPs:clusterID to a string
-func clusterMapToString(m map[string]int) string {
+//converts a map of string:int to a string
+func stringIntMapToString(m map[string]int) string {
 	mapString := new(bytes.Buffer)
 	for node, clusterIndex := range m {
-		fmt.Fprintf(mapString, "%s=\"%d\"\n", node, clusterIndex)
+		fmt.Fprintf(mapString, "%s : %d \n", node, clusterIndex)
 	}
+	return mapString.String()
+}
+
+//converts a map of string:string to a string
+func stringMapToString(m map[string]string) string {
+	mapString := new(bytes.Buffer)
+	fmt.Fprintf(mapString, "{")
+	index := 0
+	for key, val := range m {
+		fmt.Fprintf(mapString, "'%s':'%s'", key, val)
+		if index < len(m) - 1 {
+			fmt.Fprintf(mapString, ",")
+		}
+		index++
+	}
+	fmt.Fprintf(mapString, "}")
 	return mapString.String()
 }
 
@@ -100,3 +118,44 @@ func insortStringIntoSlice(slice []string, str string) []string {
 	}
 	return returnSlice
 }
+
+//gets the ips of the nodes in a partition
+func getPartition(clusterID int) []string{
+	var returnSlice []string
+	for node, clusterIndex := range cDict {
+		if clusterIndex == clusterID {
+			returnSlice = append(returnSlice, node)
+		}
+	}
+	return returnSlice
+}
+
+//https://gist.github.com/maniankara/a10d19960293b34b608ac7ef068a3d63
+func putRequest(url string, data io.Reader) int {
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPut, url, data)
+	if err != nil {
+		// handle error
+		return 0
+	}
+	_, err = client.Do(req)
+	if err != nil {
+		// handle error
+		return 0
+	}
+	return 1
+}
+
+/*
+def getPartition(num):
+    partitionStart = num*K
+    partitionEnd = partitionStart + K
+    if partitionEnd > len(view):
+        return None
+    membersRange = range(partitionStart, partitionEnd)
+    members = []
+    for node in view:
+        if view.index(node) in membersRange:
+            members.append(node)
+return members
+*/

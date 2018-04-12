@@ -4,8 +4,8 @@ package main
 
 import (
 	"encoding/json"
-	// "log"
-	"fmt"
+	"log"
+	// "fmt"
 	"net/http"
 	"io/ioutil"
 	// "os"
@@ -93,11 +93,12 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
+
 func _getDB(w http.ResponseWriter, r *http.Request){
 	//return {"result": "success", "dict": json.dumps(d), "causal_payload": json.dumps(vClock),
 	//	"timestamp": json.dumps(storedTimeStamp)}, 200
-	json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": kvStr, 
-		"causal_payload": vClock, "timestamp": storedTimeStamp}) //200
+	json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": stringMapToString(keyVals), 
+		"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
 }
 
 func updateDatabase(){
@@ -120,10 +121,46 @@ func updateDatabase(){
 		if err2 != nil {
 			continue
 		}
-		fmt.Println(msgMap["kvs"])
+		log.Println("In UpdateDatabase(): ")
+		log.Println(msgMap["kvs"])
 	}
 }
+
 /*
+func forwardPut(clusterID int, key string, value string, causalPayload int, timestamp int){
+	//try requesting random replicas in cluster
+	noResp := true
+	dataCluster := getPartition(clusterID)
+	for noResp {
+		if len(dataCluster) <= 0{
+			json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": kvStr, 
+				"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
+		}
+	}
+
+}
+
+def forwardPut(cluster, key, value, causalPayload, timestamp):
+    #Try requesting random replicas
+    noResp = True
+    dataCluster = getPartition(cluster)
+    while noResp:
+        if dataCluster is None:
+            return {'result': 'error', 'msg': 'Server unavailable'}, 500
+        repIp = random.choice(dataCluster)
+        try:
+            response = requests.put((http_str + repIp + kv_str + key), 
+                data = {'val': value, 'causal_payload': causalPayload, 'timestamp': timestamp})
+        except requests.exceptions.RequestException as exc: #Handle replica failure
+            dataCluster.remove(repIp)
+            removeReplica(repIp)
+            notInView.append(repIp)
+            notInView = sortIPs(notInView)
+            continue
+        noResp = False
+    #_print(response.json(), 'Fp')
+return response.json()
+
 def updateDatabase():
     global replicas, notInView
     for ip in replicas:

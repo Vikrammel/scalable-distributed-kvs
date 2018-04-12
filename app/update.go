@@ -6,6 +6,8 @@ import (
 	"log"
 	"strings"
 	"time"
+	// "bytes"
+	// "net/http"
 
 	"ipsorting"
 )
@@ -18,7 +20,7 @@ func updateCDict() {
 		cDict[node] = clusterID
 	}
 	for node := range cDict {
-		if stringInSlice(node, view) {
+		if stringInSlice(node, view) == false{
 			delete(cDict, node)
 		}
 	}
@@ -78,11 +80,13 @@ func updateRatio() {
 		if clusterID >= proxyPartition { //this node is a proxy
 			if stringInSlice(ipPort, proxies) == false {
 
-				if len(keyVals) != 0 {
-					// for key,val := range keyVals {
-					// 	forwardPut(0, key, val, vClock[key], storedTimeStamp[key])
-					// }
-				}
+				// if len(keyVals) != 0 {
+				// 	// for key, val := range keyVals {
+				// 		// 	forwardPut(0, key, val, vClock[key], storedTimeStamp[key])
+				// 		// response = requests.put((http_str + repIp + kv_str + key),
+				// 		// data = {'val': value, 'causal_payload': causalPayload, 'timestamp': timestamp})
+				// 	// }
+				// }
 
 				keyVals = make(map[string]string)
 				vClock = make(map[string]int)
@@ -123,7 +127,7 @@ func updateRatio() {
 				if stringInSlice(node, localCluster) == false {
 					localCluster = append(localCluster, node)
 					localCluster = ipsorting.SortIPs(localCluster)
-					if stringInSlice(node, proxies){
+					if stringInSlice(node, proxies) {
 						proxies = remove(node, proxies)
 					}
 				}
@@ -147,26 +151,18 @@ func updateRatio() {
 		}
 	}
 	// updateHashRing()
+	updateCDict() //in old flask code, called from within updateHashRing
 }
 
 //heartbeat function to ping nodes and adjust the view
 func heartBeat() {
 	for {
-		// old flask-restful threading code
-		// heart = threading.Timer(3.0, heartBeat)
-		// heart.daemon = True
-		// heart.start()
-
-		// if firstHeartBeat:
-		//     firstHeartBeat = False
-		//     return
-
 		time.Sleep(2 * time.Second) //run heartbeat every 2s
 
 		log.Println("My IP: " + ipPort + newline +
 			"View: " + strings.Join(view, ", ") + newline +
 			"notInView: " + strings.Join(notInView, ", ") + newline +
-			"Cluster Map: " + clusterMapToString(cDict) + newline +
+			"Cluster Map: " + stringIntMapToString(cDict) + newline +
 			"Proxies: " + strings.Join(proxies, ", "))
 
 		//loop through notInView to see if any nodes in there have come online
