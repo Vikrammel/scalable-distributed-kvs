@@ -99,8 +99,6 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func _getDB(w http.ResponseWriter, r *http.Request){
-	//return {"result": "success", "dict": json.dumps(d), "causal_payload": json.dumps(vClock),
-	//	"timestamp": json.dumps(storedTimeStamp)}, 200
 	json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": stringMapToString(keyVals), 
 		"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
 }
