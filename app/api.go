@@ -4,10 +4,10 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	// "log"
 	// "fmt"
 	"net/http"
-	"io/ioutil"
+	// "io/ioutil"
 	// "os"
 	// "strings"
 	// "strconv"
@@ -101,31 +101,6 @@ func _getDB(w http.ResponseWriter, r *http.Request){
 		"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
 }
 
-func updateDatabase(){
-	for _,node := range localCluster {
-		if node == ipPort {
-			continue
-		}
-		rs, err := http.Get(httpStr + node + kvStr + "_getDB")
-		if err != nil {
-			continue
-		}
-		defer rs.Body.Close()
-
-		bodyBytes, err := ioutil.ReadAll(rs.Body)
-		if err != nil {
-			continue
-		}
-		msgMap := make(map[string]interface{})
-		err2 := json.Unmarshal(bodyBytes, &msgMap)
-		if err2 != nil {
-			continue
-		}
-		log.Println("In UpdateDatabase(): ")
-		log.Println(msgMap["kvs"])
-	}
-}
-
 /*
 func forwardPut(clusterID int, key string, value string, causalPayload int, timestamp int){
 	//try requesting random replicas in cluster
@@ -160,31 +135,4 @@ def forwardPut(cluster, key, value, causalPayload, timestamp):
         noResp = False
     #_print(response.json(), 'Fp')
 return response.json()
-
-def updateDatabase():
-    global replicas, notInView
-    for ip in replicas:
-        if ip == IpPort:
-            continue
-        try:
-            #TODO: create _getAll! function, returning [d, vClock, storedTimeStamp]
-            response = (requests.get((http_str + ip + kv_str + '_getAllKeys!'), timeout=5)).json()
-            try:
-                responseD = json.loads(response['dict'])
-            except:
-                _print("Can't get data from a halfNode")
-                continue
-            responseCausal = json.loads(response['causal_payload'])
-            responseTime = json.loads(response['timestamp'])
-            for key in json.loads(response['dict']):
-                if (d.get(key) == None or responseCausal[key] > vClock[key] or
-                   (responseCausal[key] == vClock[key] and responseTime[key] > storedTimeStamp[key])):
-                    d[key] = responseD[key].encode('ascii', 'ignore')
-                    vClock[key] = responseCausal[key]
-                    storedTimeStamp[key] = responseTime[key]
-        except requests.exceptions.RequestException: #Handle no response from ip
-            _print("updateDatabase timeout occured.")
-            removeReplica(ip)
-            notInView.append(ip)
-			notInView = sortIPs(notInView)
 */
