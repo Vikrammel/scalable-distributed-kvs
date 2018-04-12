@@ -6,6 +6,8 @@ import (
 	"log"
 	"strings"
 	"time"
+	// "bytes"
+	// "net/http"
 
 	"ipsorting"
 )
@@ -18,7 +20,7 @@ func updateCDict() {
 		cDict[node] = clusterID
 	}
 	for node := range cDict {
-		if stringInSlice(node, view) {
+		if stringInSlice(node, view) == false{
 			delete(cDict, node)
 		}
 	}
@@ -59,23 +61,108 @@ func removeNode(ip string, crash bool) {
 	}
 }
 
+//update ratio of proxies / replicas
+func updateRatio() {
+
+	newPartition := indexOf(ipPort, view) / nodesPerCluster
+	proxyPartition := len(view) / nodesPerCluster
+
+	if len(view) >= nodesPerCluster {
+		// log.Println( "partition: " + strconv.Itoa(clusterID) + newline +
+		// 		"newPartition: " + strconv.Itoa(newPartition) + newline +
+		// 		"proxy partition: " + strconv.Itoa(proxyPartition) )
+
+		// The partition this node belongs to had changed.
+		if clusterID != newPartition {
+			clusterID = newPartition
+			localCluster = localCluster[:0]
+		}
+		if clusterID >= proxyPartition { //this node is a proxy
+			if stringInSlice(ipPort, proxies) == false {
+
+				// if len(keyVals) != 0 {
+				// 	// for key, val := range keyVals {
+				// 		// 	forwardPut(0, key, val, vClock[key], storedTimeStamp[key])
+				// 		// response = requests.put((http_str + repIp + kv_str + key),
+				// 		// data = {'val': value, 'causal_payload': causalPayload, 'timestamp': timestamp})
+				// 	// }
+				// }
+
+				keyVals = make(map[string]string)
+				vClock = make(map[string]int)
+				storedTimeStamp = make(map[string]int)
+
+				isReplica = false
+				//_print("Converted to " + getReplicaDetail() + " at 0.5")
+				proxies = append(proxies, ipPort)
+				proxies = ipsorting.SortIPs(proxies)
+				localCluster = localCluster[:0]
+			}
+		} else {
+			isReplica = true
+			//_print("Converted to " + str(getReplicaDetail()) + " at 1")
+		}
+	}
+
+	for index, node := range view {
+		// This is a proxy.
+		if index/nodesPerCluster >= proxyPartition {
+			if stringInSlice(node, proxies) == false {
+				if stringInSlice(node, localCluster) && isReplica {
+					localCluster = remove(node, localCluster)
+				}
+				proxies = append(proxies, node)
+				proxies = ipsorting.SortIPs(proxies)
+				if node == ipPort {
+					isReplica = false
+					//_print("Converted to " + str(getReplicaDetail()) + " at 2")
+				}
+			}
+		} else if indexOf(node, view)/nodesPerCluster == clusterID {
+			// This is a replica within the same partition.
+			if node == ipPort {
+				isReplica = true
+				//_print("Converted to " + str(getReplicaDetail()) + " at 3")
+
+				if stringInSlice(node, localCluster) == false {
+					localCluster = append(localCluster, node)
+					localCluster = ipsorting.SortIPs(localCluster)
+					if stringInSlice(node, proxies) {
+						proxies = remove(node, proxies)
+					}
+				}
+				// updateDatabase()
+			}
+			if isReplica && stringInSlice(node, localCluster) == false {
+				if stringInSlice(node, proxies) {
+					proxies = remove(node, proxies)
+				}
+				localCluster = append(localCluster, node)
+				localCluster = ipsorting.SortIPs(localCluster)
+			}
+		} else {
+			// This is a replica in another partition.
+			if stringInSlice(node, proxies) {
+				proxies = remove(node, proxies)
+			}
+			if stringInSlice(node, localCluster) {
+				localCluster = remove(node, localCluster)
+			}
+		}
+	}
+	// updateHashRing()
+	updateCDict() //in old flask code, called from within updateHashRing
+}
+
 //heartbeat function to ping nodes and adjust the view
 func heartBeat() {
 	for {
-		// heart = threading.Timer(3.0, heartBeat)
-		// heart.daemon = True
-		// heart.start()
-
-		// if firstHeartBeat:
-		//     firstHeartBeat = False
-		//     return
-
 		time.Sleep(2 * time.Second) //run heartbeat every 2s
 
 		log.Println("My IP: " + ipPort + newline +
 			"View: " + strings.Join(view, ", ") + newline +
 			"notInView: " + strings.Join(notInView, ", ") + newline +
-			"Cluster Map: " + clusterMapToString(cDict) + newline +
+			"Cluster Map: " + stringIntMapToString(cDict) + newline +
 			"Proxies: " + strings.Join(proxies, ", "))
 
 		//loop through notInView to see if any nodes in there have come online
@@ -106,33 +193,10 @@ func heartBeat() {
 			}
 		}
 
-		/* old python code to translate/improve
-		    for ip in notInView: //check if any nodes not currently in view came back online
-		        try:
-		            response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
-		            if response['result'] == 'success':
-		                notInView.remove(ip)
-		                view.append(ip)
-		                view = sortIPs(view)
-		                #updateHashRing()
-		        except: #Handle no response from i
-		            pass
-		    for ip in view:
-		        if ip != IpPort:
-		            try:
-		                response = (requests.get((http_str + ip + kv_str + "get_node_details"), timeout=2)).json()
-		            except requests.exceptions.RequestException as exc: #Handle no response from ip
-		                if ip in replicas:
-		                    removeReplica(ip)
-		                elif ip in proxies:
-		                    removeProxie(ip)
-		                notInView.append(ip)
-		                notInView = sortIPs(notInView)
-		                #updateHashRing()
-		    updateRatio()
-		    print("reps " + str(replicas))
-		    print("prox " + str(proxies))
-			sys.stdout.flush()
-		*/
+		//sort arrays since we might have removed from / added to them
+		notInView = ipsorting.SortIPs(notInView)
+		view = ipsorting.SortIPs(view)
+
+		updateRatio()
 	}
 }

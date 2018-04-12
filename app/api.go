@@ -4,8 +4,10 @@ package main
 
 import (
 	"encoding/json"
-	// "log"
+	"log"
+	// "fmt"
 	"net/http"
+	"io/ioutil"
 	// "os"
 	// "strings"
 	// "strconv"
@@ -91,3 +93,98 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "Key-Value Store cleared"}) //200
 }
+
+func _getDB(w http.ResponseWriter, r *http.Request){
+	//return {"result": "success", "dict": json.dumps(d), "causal_payload": json.dumps(vClock),
+	//	"timestamp": json.dumps(storedTimeStamp)}, 200
+	json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": stringMapToString(keyVals), 
+		"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
+}
+
+func updateDatabase(){
+	for _,node := range localCluster {
+		if node == ipPort {
+			continue
+		}
+		rs, err := http.Get(httpStr + node + kvStr + "_getDB")
+		if err != nil {
+			continue
+		}
+		defer rs.Body.Close()
+
+		bodyBytes, err := ioutil.ReadAll(rs.Body)
+		if err != nil {
+			continue
+		}
+		msgMap := make(map[string]interface{})
+		err2 := json.Unmarshal(bodyBytes, &msgMap)
+		if err2 != nil {
+			continue
+		}
+		log.Println("In UpdateDatabase(): ")
+		log.Println(msgMap["kvs"])
+	}
+}
+
+/*
+func forwardPut(clusterID int, key string, value string, causalPayload int, timestamp int){
+	//try requesting random replicas in cluster
+	noResp := true
+	dataCluster := getPartition(clusterID)
+	for noResp {
+		if len(dataCluster) <= 0{
+			json.NewEncoder(w).Encode(&map[string]string{"result": "success", "kvs": kvStr, 
+				"causal_payload": stringIntMapToString(vClock), "timestamp": stringIntMapToString(storedTimeStamp)}) //200
+		}
+	}
+
+}
+
+def forwardPut(cluster, key, value, causalPayload, timestamp):
+    #Try requesting random replicas
+    noResp = True
+    dataCluster = getPartition(cluster)
+    while noResp:
+        if dataCluster is None:
+            return {'result': 'error', 'msg': 'Server unavailable'}, 500
+        repIp = random.choice(dataCluster)
+        try:
+            response = requests.put((http_str + repIp + kv_str + key), 
+                data = {'val': value, 'causal_payload': causalPayload, 'timestamp': timestamp})
+        except requests.exceptions.RequestException as exc: #Handle replica failure
+            dataCluster.remove(repIp)
+            removeReplica(repIp)
+            notInView.append(repIp)
+            notInView = sortIPs(notInView)
+            continue
+        noResp = False
+    #_print(response.json(), 'Fp')
+return response.json()
+
+def updateDatabase():
+    global replicas, notInView
+    for ip in replicas:
+        if ip == IpPort:
+            continue
+        try:
+            #TODO: create _getAll! function, returning [d, vClock, storedTimeStamp]
+            response = (requests.get((http_str + ip + kv_str + '_getAllKeys!'), timeout=5)).json()
+            try:
+                responseD = json.loads(response['dict'])
+            except:
+                _print("Can't get data from a halfNode")
+                continue
+            responseCausal = json.loads(response['causal_payload'])
+            responseTime = json.loads(response['timestamp'])
+            for key in json.loads(response['dict']):
+                if (d.get(key) == None or responseCausal[key] > vClock[key] or
+                   (responseCausal[key] == vClock[key] and responseTime[key] > storedTimeStamp[key])):
+                    d[key] = responseD[key].encode('ascii', 'ignore')
+                    vClock[key] = responseCausal[key]
+                    storedTimeStamp[key] = responseTime[key]
+        except requests.exceptions.RequestException: #Handle no response from ip
+            _print("updateDatabase timeout occured.")
+            removeReplica(ip)
+            notInView.append(ip)
+			notInView = sortIPs(notInView)
+*/
