@@ -61,6 +61,10 @@ func PutKey(w http.ResponseWriter, r *http.Request) {
 	if !(len(value) > 0) {
 		value = ""
 	} //make sure value is a valid empty str
+	if len(params["key"]) < 1 {
+		w.WriteHeader(http.StatusBadRequest) //400
+		json.NewEncoder(w).Encode(&map[string]string{"Error": "Must provide key"})
+	}
 	keyVals[params["key"]] = value //store/update user's value for key
 
 	json.NewEncoder(w).Encode(&map[string]string{"Success": "key value pair {'" + params["key"] + "':'" + value + "'} updated"}) //200
