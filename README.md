@@ -1,5 +1,5 @@
 #Distributed, Fault-Tolerant Key-Value Store written in Golang#
-## by Vikram Melkote and Mike Hamilton
+## by Vikram Melkote
 
 ### Set-Up
 
@@ -69,15 +69,11 @@ to view kvs of a node:
 
 * Abstract helper functions into separate files for readability
 
-* fix print functions to be one function with different tags like Tom had it
-
 * implement proper chord where a node only stores r buckets before and after itself
 	instead of all buckets
 
 * make read repair work so it doesn't try to send a whole dict if it's bugger than max request size.
 	Look into setting up a fixed sized buffer to send huge dicts in chunks
-
-* make sorting of arrays more efficient
 
 ### Problems to debug from old flask implementation (if encountered after rebuild):
 
